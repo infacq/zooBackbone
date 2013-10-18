@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Zoo Backbone</title>
+<link rel="stylesheet" href="../css/gaya.css" />
+</head>
+
+<body>
+
+<div id="header"><span class="title">Zoo Backbone</span></div>
+
+<div id="sidebar"></div>
+
+<div id="content">
+<h2>Selamat Datang ke Zoo Backbone</h2>
+<p>
+Ini merupakan sebuah contoh bagaimana membina aplikasi menggunakan BackboneJS
+</p>
+</div>
+
+<!-- Templates -->
+<script type="text/template" id="tpl-senarai-binatang-item">
+	<a href='#zoo/<%= id %>'><%= nama %></a>
+</script>
+
+<script type="text/template" id="tpl-binatang-rinci">
+    <div class="form-left-col">
+        <label>Id:</label>
+        <input type="text" id="makhlukId" name="id" value="<%= id %>" disabled />
+        <label>Binatang:</label>
+        <input type="text" id="nama" name="nama" value="<%= nama %>" required/>
+        <label>Tahun Kemasukan ke Zoo:</label>
+        <input type="text" id="tahun_kemasukan" name="tahun_kemasukan" value="<%= tahun_kemasukan %>"/>
+    </div>
+    <div class="form-right-col">
+        <img height="300" src="../pics/<%= picture %>"/>
+        <label>Perihal:</label>
+        <textarea id="description" name="description"><%= keterangan %></textarea>
+    </div>
+</script>
+
+<!-- JavaScript -->
+<script src="../lib/jquery.min.js"></script>
+<script src="../lib/underscore-min.js"></script>
+<script src="../lib/backbone-min.js"></script>
+<script src="js/main.js"></script>   
+
+</body>
+</html>
