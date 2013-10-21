@@ -3,7 +3,11 @@ window.Makhluk = Backbone.Model.extend();
 
 window.Zoo = Backbone.Collection.extend({
     model:Makhluk,
-    url:"../api/makhluk"
+    url:"./api/makhluk",
+    initialize: function() {        
+				// tugaskan Deferred yang diarahkan oleh fetch() sebagai salah satu sifatnya (property)
+        this.deferred = this.fetch();
+    }
 });
 
 
@@ -13,13 +17,14 @@ window.ZooView = Backbone.View.extend({
     tagName:'ul',
 
     initialize:function () {
-        this.model.bind("reset", this.render, this);
+        _.bindAll(this,'render');
+				this.model.on("reset", this.render, this);				
     },
 
-    render:function (eventName) {
-        _.each(this.model.models, function (binatang) {
-            $(this.el).append(new ViewItemZoo({model:binatang}).render().el);
-        }, this);
+    render:function () {
+				_.each(this.model.models, function (binatang) {
+						$(this.el).append(new ViewItemZoo({model:binatang}).render().el);
+				}, this);
         return this;
     }
 
@@ -30,7 +35,7 @@ window.ViewItemZoo = Backbone.View.extend({
     tagName:"li",
 
     template:_.template($('#tpl-senarai-binatang-item').html()),
-
+		
     render:function (eventName) {
         $(this.el).html(this.template(this.model.toJSON()));
         return this;
@@ -42,8 +47,8 @@ window.binatangView = Backbone.View.extend({
 
     template:_.template($('#tpl-binatang-rinci').html()),
 
-    render:function (eventName) {
-        $(this.el).html(this.template(this.model.toJSON()));
+    render:function (eventName) {        
+				$(this.el).html(this.template(this.model.toJSON()));
         return this;
     }
 
@@ -54,21 +59,31 @@ window.binatangView = Backbone.View.extend({
 var AplRouter = Backbone.Router.extend({
 
     routes:{
-        "":"senarai",
-        "makhluk/:id":"makhluk"
+        ""         : "senarai",
+        "zoo/:id" : "makhluk"
     },
 
-    senarai:function () {
-        this.senarai_binatang = new Zoo();
-        this.s_binatang_View = new ZooView({model:this.senarai_binatang});
-        this.senarai_binatang.fetch();
-        $('#sidebar').html(this.s_binatang_View.render().el);
+		initialize: function() {
+				this.senarai_binatang = new Zoo();
+				this.senarai_binatang.fetch();
+		},
+		
+    senarai:function () {        
+        var _this = this; //terpaksa menggunakan _this kerana lingkungan berubah mengikut arahan dibawah
+				this.senarai_binatang.deferred.done(function() {
+						// jQuery telah lama memperkenalkan kaedah deffered ini bagi mengatasi kerumitan masalah asyncronize						
+						_this.s_binatang_View = new ZooView({model:_this.senarai_binatang}); 								
+						$('#sidebar').html(_this.s_binatang_View.render().el);
+				});
     },
 
-    makhluk:function (id) {
-        this.binatang = this.senarai_binatang.get(id);
-        this.ViewBinatang = new binatangView({model:this.binatang});
-        $('#content').html(this.ViewBinatang.render().el);
+    makhluk:function (id) {				
+        var _this = this;
+				this.senarai_binatang.deferred.done(function() {
+						var makhluk = _this.senarai_binatang.get(id);
+						_this.ViewBinatang = new binatangView({model:makhluk});
+						$('#content').html(_this.ViewBinatang.render().el);
+				});
     }
 });
 
